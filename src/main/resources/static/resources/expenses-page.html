@@ -32,19 +32,27 @@
       }
 
     </style>
-    <token-ajax id="ajax" url="/api/expenses" last-response="{{expenses}}" token="{{token}}"></token-ajax>
+    <token-ajax id="ajax" url="/api/expenses" last-response="{{expenses}}"
+                token="{{token}}"></token-ajax>
+
     <paper-drawer-panel right-drawer class="flex">
       <stats-panel expenses="[[expenses]]" drawer></stats-panel>
+
       <paper-header-panel main>
+
         <paper-toolbar class="toolbar">
           <h1>Expense Manager</h1>
           <span class="flex"></span>
           <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
         </paper-toolbar>
 
-        <expenses-list id="list" class="fit" expenses="[[expenses]]" token="{{token}}"></expenses-list>
+        <expenses-list id="list" class="fit" expenses="[[expenses]]"
+                       token="{{token}}"></expenses-list>
+
       </paper-header-panel>
+
     </paper-drawer-panel>
+
     <paper-toast id="toast"></paper-toast>
   </template>
   <script>
@@ -62,7 +70,7 @@
         'expenses-updated': '_expensesUpdated'
       },
 
-      _expensesUpdated: function(evt){
+      _expensesUpdated: function(evt) {
         var toast = this.$.toast;
         toast.text = evt.detail.message;
         toast.show();

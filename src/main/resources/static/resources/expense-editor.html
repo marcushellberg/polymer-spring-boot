@@ -91,7 +91,7 @@
     <paper-dialog id="dialog" modal>
 
       <div class="main-layout">
-        <h2>{{heading}}</h2>
+        <h2>{{caption}}</h2>
         <span class="flex"></span>
         <paper-icon-button icon="close" on-tap="close"
                            class="close-button self-start"></paper-icon-button>
@@ -140,18 +140,27 @@
             type: String,
             notify: true
           },
-          heading: {
+          caption: {
             type: String,
-            computed: '_getHeading(expense)'
+            computed: '_getCaption(expense)'
           },
           errorMessage: String
         },
 
-        listeners: {
-          'iron-form-invalid': '_showValidationErrors'
+        open: function(expense) {
+          if (!expense.date) {
+            expense.date = moment().format('YYYY-MM-DD');
+          }
+          this.expense = expense;
+          this.$.delete.hidden = !(this.expense.id && this.expense.status === 'NEW');
+          this.$.dialog.open();
         },
 
-        _getHeading: function(expense) {
+        close: function() {
+          this.$.dialog.close();
+        },
+
+        _getCaption: function(expense) {
           if (expense.id) {
             return 'Edit Expense';
           } else {
@@ -163,6 +172,7 @@
           var _this = this;
           this.errorMessage = '';
           var form = this.$.form;
+
           if (form.validate()) {
             var newExpense = form.serialize();
             this._ajax({
@@ -179,26 +189,6 @@
           } else {
             this.errorMessage = 'Please fill all required fields';
           }
-        },
-
-        _showValidationErrors: function(evt) {
-          console.log(evt);
-        },
-
-        open: function(expense) {
-          if (!expense.date) {
-            expense.date = moment().format('YYYY-MM-DD');
-          }
-          this.expense = expense;
-          this.$.delete.hidden = !(this.expense.id && this.expense.status === 'NEW');
-          this.$.dialog.open();
-        },
-
-        close: function() {
-          var _this = this;
-          this.async(function() {
-            _this.$.dialog.close();
-          }, 10);
         },
 
         _delete: function() {
@@ -231,7 +221,7 @@
                     resolve();
                   }
                 } else {
-                  if(xhr.status == 401 || xhr.status == 403){
+                  if (xhr.status == 401 || xhr.status == 403) {
                     _this.token = '';
                   }
                   reject({

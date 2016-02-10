@@ -28,20 +28,16 @@ public class LoginFilter extends AbstractAuthenticationProcessingFilter {
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException, IOException, ServletException {
 
-        Authentication authentication = getAuthenticationManager()
+        return getAuthenticationManager()
                 .authenticate(new UsernamePasswordAuthenticationToken(
                         request.getParameter("username"), request.getParameter("password")));
-        return authentication;
     }
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                             FilterChain chain, Authentication authentication) throws IOException, ServletException {
 
-        // Add the custom token as HTTP header to the response
         tokenAuthenticationService.addAuthentication(response, (TokenUser) authentication.getPrincipal());
-
-        // Add the authentication to the Security context
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 }

@@ -21,8 +21,6 @@ public class ExpensesController {
 
     @RequestMapping(method = RequestMethod.GET)
     public List<Expense> getExpenses() {
-
-
         return expensesRepository.findByUserOrderByDateDesc(getCurrentUser());
     }
 

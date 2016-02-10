@@ -1,6 +1,5 @@
 package org.vaadin.marcus.domain;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
@@ -18,7 +17,6 @@ public class Expense {
     private User user;
     private String merchant;
     @Temporal(TemporalType.DATE)
-
     private Date date;
     private String comment;
     private BigDecimal total;
