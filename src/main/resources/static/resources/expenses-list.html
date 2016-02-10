@@ -9,11 +9,12 @@
         position: relative;
         display: flex;
         flex-direction: column;
+        border-right: 1px solid #ddd;
       }
 
       .filters {
         box-sizing: border-box;
-        height: 144px;
+        height: 100px;
         display: flex;
         justify-content: center;
         align-items: center;
@@ -51,7 +52,7 @@
     <div class="filters">
       <paper-input label="Filter by merchant" value="{{merchant}}"></paper-input>
     </div>
-    <vaadin-grid id="expenses" items="{{expenses}}" frozen-columns="1">
+    <vaadin-grid id="expenses" items="{{expenses}}" frozen-columns="1" on-selected-items-changed="_editExpense">
       <table>
         <colgroup>
           <col name="date" sortable width="150">
@@ -63,15 +64,18 @@
       </table>
     </vaadin-grid>
     <paper-fab icon="add" on-tap="_addExpense" class="add-button"></paper-fab>
-    <expense-editor id="editor"></expense-editor>
+    <expense-editor id="editor" token="{{token}}"></expense-editor>
 
   </template>
   <script>
     Polymer({
       is: 'expenses-list',
       properties: {
-        token: String,
         expenses: Array,
+        token: {
+          type: String,
+          notify: true
+        },
         merchant: {
           type: String,
           observer: '_filterChanged'
@@ -126,6 +130,17 @@
 
       _addExpense: function() {
         this.$.editor.open({});
+      },
+
+      _editExpense: function(){
+        var _this = this;
+        var grid = this.$.expenses;
+        var selection = grid.selection.selected();
+        if (selection.length === 1) {
+          grid.getItem(selection[0], function(err, item) {
+            _this.$.editor.open(item);
+          });
+        }
       }
     });
   </script>

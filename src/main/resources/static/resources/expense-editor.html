@@ -1,24 +1,258 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+<link rel="import" href="bower_components/iron-form/iron-form.html">
 <link rel="import" href="bower_components/paper-dialog/paper-dialog.html">
+<link rel="import" href="bower_components/paper-input/paper-input.html">
+<link rel="import" href="bower_components/paper-input/paper-textarea.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="bower_components/iron-a11y-keys/iron-a11y-keys.html">
+<link rel="import" href="bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="bower_components/neon-animation/animations/slide-down-animation.html">
+<link rel="import" href="scripts/moment-js.html">
 
 <dom-module id="expense-editor">
   <template>
     <style>
-      :host {
+      #dialog {
         display: block;
+        padding: 16px 32px 64px 32px;
+        border: 1px solid #ccc;
+        position: absolute;
+        top: 0;
+        margin: 0;
+        width: 80vw;
+        background: var(--primary-background-color);
+        overflow-y: scroll;
+      }
+
+      .main-layout {
+        display: flex;
+        flex-direction: row;
+      }
+
+      .flex {
+        flex: 1;
+      }
+
+      .form {
+        flex: 2;
+      }
+
+      .buttons-layout {
+        display: flex;
+        flex-direction: row;
+        margin-top: 16px;
+      }
+
+      .buttons-layout paper-button {
+        width: 150px;
+      }
+
+      .save-button {
+        background: var(--accent-color);
+        color: var(--text-primary-color);
+      }
+
+      .cancel-button {
+        color: var(--accent-color);
+      }
+
+      h2 {
+        font-size: 2em;
+        font-weight: 300;
+      }
+
+      paper-button[hidden] {
+        display: none;
+      }
+
+      .error-message {
+        margin-top: 20px;
+        color: #DB4437;
+      }
+
+      .close-button {
+        color: var(--accent-color);
+      }
+
+      form::content label {
+        font-weight: bold !important;
+        color: #999 !important;
+      }
+
+      @media (max-width: 600px) {
+        #dialog {
+          width: 100vw;
+          min-height: 100vh;
+          padding: 0 0 60px 0;
+        }
       }
     </style>
-  <paper-dialog modal id="dialog">
+    <paper-dialog id="dialog" modal>
 
-    <div>Hello!</div>
+      <div class="main-layout">
+        <h2>{{heading}}</h2>
+        <span class="flex"></span>
+        <paper-icon-button icon="close" on-tap="close"
+                           class="close-button self-start"></paper-icon-button>
+      </div>
 
-  </paper-dialog>
+      <div class="form">
+        <form is="iron-form" id="form">
+          <iron-a11y-keys keys="enter" on-keys-pressed="_save"></iron-a11y-keys>
+          <paper-input name="merchant" value="{{expense.merchant}}" id="merchant" label="Merchant"
+                       required autofocus error-message="Merchant name required"></paper-input>
+          <paper-input name="total" value="{{expense.total}}" id="total" label="Total" required
+                       pattern="[\d(.\d{2})?]+" error-message="Numeric values only">
+            <div prefix>$</div>
+          </paper-input>
+          <paper-input label="Date" value="{{expense.date}}" id="date" name="date"
+                       pattern="\d{4}-\d{2}-\d{2}" error-message="Value must be in YYYY-MM-DD"
+                       auto-validate></paper-input>
+          <paper-textarea value="{{expense.comment}}" id="comment" name="comment" label="Comment"
+                          value=""></paper-textarea>
+        </form>
+      </div>
+      <div class="buttons-layout">
+        <paper-button raised on-tap="_save" class="save-button">Save</paper-button>
+        <paper-button on-tap="close" class="cancel-button">Cancel</paper-button>
+        <paper-button on-tap="_delete" id="delete" class="delete-button">Delete
+        </paper-button>
+      </div>
+      <span class="error-message" hidden="[[!errorMessage]]">[[errorMessage]]</span>
+    </paper-dialog>
   </template>
+
   <script>
-    Polymer({
-      is: 'expense-editor',
-      open: function(){
-        this.$.dialog.open();
-      }
-    });
+    (function() {
+      'use strict';
+
+      Polymer({
+        is: 'expense-editor',
+
+        properties: {
+          expense: {
+            type: Object,
+            notify: true,
+            value: {}
+          },
+          token: {
+            type: String,
+            notify: true
+          },
+          heading: {
+            type: String,
+            computed: '_getHeading(expense)'
+          },
+          errorMessage: String
+        },
+
+        listeners: {
+          'iron-form-invalid': '_showValidationErrors'
+        },
+
+        _getHeading: function(expense) {
+          if (expense.id) {
+            return 'Edit Expense';
+          } else {
+            return 'Add Expense';
+          }
+        },
+
+        _save: function() {
+          var _this = this;
+          this.errorMessage = '';
+          var form = this.$.form;
+          if (form.validate()) {
+            var newExpense = form.serialize();
+            this._ajax({
+              url: '/api/expenses' + (this.expense.id ? '/' + this.expense.id : ''),
+              method: this.expense.id ? 'PUT' : 'POST',
+              body: newExpense
+            }).then(function() {
+              _this.fire('expenses-updated', {message: 'Expense saved'});
+              _this.close();
+            }).catch(function(err) {
+              console.log(err);
+              _this.errorMessage = 'Save failed';
+            });
+          } else {
+            this.errorMessage = 'Please fill all required fields';
+          }
+        },
+
+        _showValidationErrors: function(evt) {
+          console.log(evt);
+        },
+
+        open: function(expense) {
+          if (!expense.date) {
+            expense.date = moment().format('YYYY-MM-DD');
+          }
+          this.expense = expense;
+          this.$.delete.hidden = !(this.expense.id && this.expense.status === 'NEW');
+          this.$.dialog.open();
+        },
+
+        close: function() {
+          var _this = this;
+          this.async(function() {
+            _this.$.dialog.close();
+          }, 10);
+        },
+
+        _delete: function() {
+          var _this = this;
+          this._ajax({
+            url: '/api/expenses/' + this.expense.id,
+            method: 'DELETE'
+          }).then(function() {
+            _this.fire('expenses-updated', {message: 'Expense deleted'});
+            _this.close();
+          }).catch(function(err) {
+            console.log(err);
+            _this.errorMessage = 'Delete failed.';
+          });
+        },
+
+        _ajax: function(options) {
+          var _this = this;
+          var method = options.method || 'GET';
+          var url = options.url;
+
+          return new Promise(function(resolve, reject) {
+            var xhr = new XMLHttpRequest();
+            xhr.onreadystatechange = function() {
+              if (xhr.readyState === 4) {
+                if (xhr.status >= 200 && xhr.status < 300) {
+                  if (xhr.responseText) {
+                    resolve(JSON.parse(xhr.responseText));
+                  } else {
+                    resolve();
+                  }
+                } else {
+                  if(xhr.status == 401 || xhr.status == 403){
+                    _this.token = '';
+                  }
+                  reject({
+                    success: false,
+                    status: xhr.status
+                  });
+                }
+              }
+            };
+
+            xhr.open(method, url, true);
+            xhr.setRequestHeader('x-auth-token', _this.token);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            if ((method === 'POST' || method === 'PUT') && options.body) {
+              xhr.send(JSON.stringify(options.body));
+            } else {
+              xhr.send();
+            }
+          });
+        }
+      });
+    })();
   </script>
 </dom-module>

@@ -5,7 +5,7 @@
 <link rel="import" href="bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="bower_components/neon-animation/neon-animatable-behavior.html">
-
+<link rel="import" href="bower_components/paper-toast/paper-toast.html">
 <link rel="import" href="stats-panel.html">
 <link rel="import" href="expenses-list.html">
 <dom-module id="expenses-page">
@@ -32,7 +32,7 @@
       }
 
     </style>
-    <token-ajax url="/api/expenses" last-response="{{expenses}}" token="{{token}}"></token-ajax>
+    <token-ajax id="ajax" url="/api/expenses" last-response="{{expenses}}" token="{{token}}"></token-ajax>
     <paper-drawer-panel right-drawer class="flex">
       <stats-panel expenses="[[expenses]]" drawer></stats-panel>
       <paper-header-panel main>
@@ -42,9 +42,10 @@
           <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle></paper-icon-button>
         </paper-toolbar>
 
-        <expenses-list id="list" class="fit" expenses="[[expenses]]"></expenses-list>
+        <expenses-list id="list" class="fit" expenses="[[expenses]]" token="{{token}}"></expenses-list>
       </paper-header-panel>
     </paper-drawer-panel>
+    <paper-toast id="toast"></paper-toast>
   </template>
   <script>
     Polymer({
@@ -56,7 +57,18 @@
           notify: true
         }
       },
-      behaviors: [Polymer.NeonAnimatableBehavior]
+      behaviors: [Polymer.NeonAnimatableBehavior],
+      listeners: {
+        'expenses-updated': '_expensesUpdated'
+      },
+
+      _expensesUpdated: function(evt){
+        var toast = this.$.toast;
+        toast.text = evt.detail.message;
+        toast.show();
+
+        this.$.ajax.go();
+      }
     });
   </script>
 </dom-module>
