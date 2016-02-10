@@ -1,5 +1,8 @@
 package org.vaadin.marcus.domain;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -10,8 +13,12 @@ public class Expense {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private Long id;
+    @ManyToOne
+    @JsonIgnore
+    private User user;
     private String merchant;
     @Temporal(TemporalType.DATE)
+
     private Date date;
     private String comment;
     private BigDecimal total;
@@ -24,6 +31,14 @@ public class Expense {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public String getMerchant() {

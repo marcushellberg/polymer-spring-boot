@@ -1,0 +1,64 @@
+<link rel="import" href="bower_components/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="bower_components/iron-ajax/iron-ajax.html">
+<dom-module id="token-ajax">
+  <template>
+    <style>
+      :host {
+        display: none;
+      }
+    </style>
+
+    <iron-ajax id="ajax" url="{{url}}" headers="{{headers}}" handle-as="json"
+               last-response="{{lastResponse}}"></iron-ajax>
+  </template>
+  <script>
+    Polymer({
+      is: 'token-ajax',
+      properties: {
+        token: {
+          type: String,
+          notify: true,
+          observer: '_tokenUpdated'
+        },
+        url: String,
+        headers: {
+          type: Object,
+          computed: '_getHeader(token)'
+        },
+        lastResponse: {
+          type: Object,
+          notify: true
+        }
+      },
+
+      listeners: {
+        'on-error': '_error'
+      },
+
+      go: function() {
+        this.$.ajax.generateRequest();
+      },
+
+      _tokenUpdated: function(){
+        if(this.token){
+          this.go();
+        }
+      },
+
+      _getHeader: function(token) {
+        return {'x-auth-token': token};
+      },
+
+      _error: function(evt) {
+        var status = evt.details.xhr.status;
+
+        // Token is not valid, log out.
+        if (status === 401 || status === 403) {
+          console.log('Token invalid, logging out.');
+          this.token = '';
+        }
+      }
+
+    });
+  </script>
+</dom-module>

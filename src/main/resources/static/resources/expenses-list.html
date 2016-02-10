@@ -1,0 +1,132 @@
+<link rel="import" href="bower_components/vaadin-grid/vaadin-grid.html">
+<link rel="import" href="bower_components/paper-fab/paper-fab.html">
+<link rel="import" href="token-ajax.html">
+<link rel="import" href="expense-editor.html">
+<dom-module id="expenses-list">
+  <template>
+    <style>
+      :host {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .filters {
+        box-sizing: border-box;
+        height: 144px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-bottom: 1px solid #ddd;
+      }
+
+      #expenses::content thead.vaadin-grid-header th {
+        background: var(--dark-primary-color);
+        color: #ccc;
+        font-size: 1.2em;
+        font-weight: 400;
+      }
+
+      #expenses::content thead.vaadin-grid-header th.last-frozen{
+        border-right: 1px solid #2A3A42;
+      }
+
+      .filters paper-input {
+        width: 80%;
+      }
+
+      #expenses {
+        flex: 1;
+        font-weight: 300;
+      }
+
+      .add-button {
+        position: absolute;
+        bottom: 16px;
+        right: 16px;
+      }
+
+    </style>
+
+    <div class="filters">
+      <paper-input label="Filter by merchant" value="{{merchant}}"></paper-input>
+    </div>
+    <vaadin-grid id="expenses" items="{{expenses}}" frozen-columns="1">
+      <table>
+        <colgroup>
+          <col name="date" sortable width="150">
+          <col name="merchant" sortable width="200">
+          <col name="total" sortable>
+          <col name="status" sortable width="150">
+          <col name="comment" sortable>
+        </colgroup>
+      </table>
+    </vaadin-grid>
+    <paper-fab icon="add" on-tap="_addExpense" class="add-button"></paper-fab>
+    <expense-editor id="editor"></expense-editor>
+
+  </template>
+  <script>
+    Polymer({
+      is: 'expenses-list',
+      properties: {
+        token: String,
+        expenses: Array,
+        merchant: {
+          type: String,
+          observer: '_filterChanged'
+        }
+      },
+
+      ready: function() {
+        var grid = this.$.expenses;
+
+        grid.columns[2].renderer = function(cell) {
+          cell.element.textContent = "$" + cell.data.toFixed(2);
+        };
+
+        grid.columns[3].renderer = function(cell) {
+          var status = cell.data.replace(/_/g, ' ');
+          status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+          cell.element.textContent = status;
+        };
+
+        grid.addEventListener('sort-order-changed', function() {
+          var sortProperty = grid.columns[grid.sortOrder[0].column].name;
+          var sortDirection = grid.sortOrder[0].direction;
+
+          grid.items.sort(function(a, b) {
+            var res;
+            if (!isNaN(a[sortProperty])) {
+              res = parseInt(a[sortProperty], 10) - parseInt(b[sortProperty], 10);
+            } else {
+              // Let's pretend everything that's not a number is a string.
+              res = a[sortProperty].localeCompare(b[sortProperty]);
+            }
+
+            if ('desc' === sortDirection) {
+              res *= -1;
+            }
+            return res;
+          });
+        });
+      },
+
+      _filterChanged: function() {
+        if (this.expenses) {
+          var _this = this;
+          var filter = this.merchant;
+          this.debounce('_filterChanged', function() {
+            _this.$.expenses.items = _this.expenses.filter(function(exp) {
+              return filter ? exp.merchant.toUpperCase().indexOf(filter.toUpperCase()) >= 0 : true;
+            });
+          }, 300);
+        }
+      },
+
+      _addExpense: function() {
+        this.$.editor.open({});
+      }
+    });
+  </script>
+</dom-module>

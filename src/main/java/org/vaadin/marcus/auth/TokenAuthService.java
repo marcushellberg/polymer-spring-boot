@@ -33,7 +33,7 @@ public class TokenAuthService {
 
     public Authentication getAuthentication(HttpServletRequest request) {
         final String token = request.getHeader(AUTH_HEADER_NAME);
-        if (token != null) {
+        if (token != null && !token.isEmpty()) {
             final TokenUser user = parseUserFromToken(token);
             if (user != null) {
                 return new UserAuthentication(user);

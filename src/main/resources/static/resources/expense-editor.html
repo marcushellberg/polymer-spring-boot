@@ -1,0 +1,24 @@
+<link rel="import" href="bower_components/paper-dialog/paper-dialog.html">
+
+<dom-module id="expense-editor">
+  <template>
+    <style>
+      :host {
+        display: block;
+      }
+    </style>
+  <paper-dialog modal id="dialog">
+
+    <div>Hello!</div>
+
+  </paper-dialog>
+  </template>
+  <script>
+    Polymer({
+      is: 'expense-editor',
+      open: function(){
+        this.$.dialog.open();
+      }
+    });
+  </script>
+</dom-module>

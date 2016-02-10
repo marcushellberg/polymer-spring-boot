@@ -4,6 +4,7 @@
     "vaadin-grid": "^1.0.0",
     "paper-elements": "PolymerElements/paper-elements#^1.0.7",
     "iron-elements": "PolymerElements/iron-elements#^1.0.8",
-    "neon-elements": "PolymerElements/neon-elements#^1.0.0"
+    "neon-elements": "PolymerElements/neon-elements#^1.0.0",
+    "moment": "^2.11.2"
   }
 }

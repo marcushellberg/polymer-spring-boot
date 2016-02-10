@@ -110,9 +110,9 @@
 					<resource>
 						<directory>src/main/resources</directory>
 						<excludes>
-							<exclude>static/bower_components/**/*</exclude>
-							<exclude>static/styles/**/*</exclude>
-							<exclude>static/elements.html</exclude>
+							<exclude>static/resources/bower_components/**/*</exclude>
+							<exclude>static/resources/styles/**/*</exclude>
+							<exclude>static/resources/elements.html</exclude>
 						</excludes>
 					</resource>
 				</resources>

@@ -1,6 +1,6 @@
 'use strict';
-const SRC_DIR = 'src/main/resources/static';
-const DEST_DIR = 'target/classes/static';
+const SRC_DIR = 'src/main/resources/static/resources';
+const DEST_DIR = 'target/classes/static/resources';
 const gulp = require('gulp');
 const vulcanize = require('gulp-vulcanize');
 const autoprefixer = require('gulp-autoprefixer');

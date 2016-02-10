@@ -46,6 +46,7 @@ class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .anonymous().and()
                 .authorizeRequests()
                 .antMatchers("/").permitAll()
+                .antMatchers("/favicon.ico").permitAll()
                 .antMatchers("/resources/**").permitAll()
                 .anyRequest().authenticated()
                 .and()
