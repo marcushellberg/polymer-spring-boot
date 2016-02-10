@@ -57,7 +57,7 @@ public class ExpensesController {
     ResponseEntity<Void> deleteExpense(@PathVariable Long id) {
         Expense expense = expensesRepository.findOne(id);
 
-        if (expense.getUser().equals(getCurrentUser())) {
+        if (expense.getUser().equals(getCurrentUser()) && expense.getStatus() == Status.NEW) {
             expensesRepository.delete(expense);
             return new ResponseEntity<>(HttpStatus.OK);
         } else {

@@ -1,0 +1,61 @@
+<link rel="import" href="bower_components/neon-animation/neon-animated-pages.html">
+<link rel="import" href="bower_components/neon-animation/animations/fade-in-animation.html">
+<link rel="import" href="bower_components/neon-animation/animations/fade-out-animation.html">
+<link rel="import" href="bower_components/iron-localstorage/iron-localstorage.html">
+<link rel="import" href="login-page.html">
+<link rel="import" href="expenses-page.html">
+
+<dom-module id="expenses-application">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+      }
+
+      neon-animated-pages {
+        flex: 1;
+      }
+    </style>
+    <iron-localstorage name="token" value="{{token}}"></iron-localstorage>
+    <neon-animated-pages selected="{{selected}}" entry-animation="fade-in-animation"
+                         exit-animation="fade-out-animation">
+      <login-page token="{{token}}"></login-page>
+      <expenses-page token="{{token}}"></expenses-page>
+    </neon-animated-pages>
+  </template>
+  <script>
+    Polymer({
+      is: 'expenses-application',
+      properties: {
+        token: {
+          type: String,
+          notify: true,
+          value: ''
+        },
+        selected: {
+          type: Number,
+          notify: true,
+          computed: '_selectPage(token)'
+        }
+      },
+
+      listeners: {
+        'logout': '_logout'
+      },
+
+      _selectPage: function(token) {
+        return token ? 1 : 0;
+      },
+
+      _logout: function() {
+        // invalidate token to server
+        this.token = '';
+      }
+    });
+  </script>
+</dom-module>

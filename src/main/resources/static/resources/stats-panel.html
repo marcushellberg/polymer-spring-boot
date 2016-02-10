@@ -1,0 +1,159 @@
+<link rel="import" href="bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="bower_components/paper-button/paper-button.html">
+<link rel="import" href="scripts/moment-js.html">
+
+<dom-module id="stats-panel">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        flex-direction: column;
+        background: var(--light-primary-color);
+      }
+
+      .logout {
+        color: #80CBC4;
+        font-weight: 300;
+      }
+
+      .toolbar {
+        display: flex;
+        flex-direction: row-reverse;
+        border: none;
+      }
+
+      .container {
+        flex: 1;
+        border-left: 1px solid #ddd;
+      }
+
+      .total {
+        background: var(--default-primary-color);
+        color: var(--text-primary-color);
+        box-sizing: border-box;
+        width: 100%;
+        height: 144px;
+        font-weight: 500;
+        font-size: 18px;
+        line-height: 1.4;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .total .sum {
+        font-size: 32px;
+        font-weight: 200;
+      }
+
+      .history {
+        box-sizing: border-box;
+        padding: 20px;
+      }
+
+      .history .date {
+        width: 80px;
+        text-align: right;
+        display: inline-block;
+        font-weight: 600;
+      }
+
+      .history-item {
+        margin-bottom: 10px;
+      }
+    </style>
+
+    <paper-toolbar class="toolbar">
+      <paper-button on-tap="_logout" class="logout">Logout</paper-button>
+    </paper-toolbar>
+    <div class="container">
+      <div class="total">
+        <div>Total</div>
+        <div class="sum">$[[totalOwed]]</div>
+      </div>
+      <div class="history">
+        <h2>History</h2>
+        <template is="dom-repeat" items="{{history}}">
+          <div class="history-item">
+            <span class="date">[[_getHistoryLabel(item, index)]]</span>: $[[_formatMoney(item)]]
+          </div>
+        </template>
+      </div>
+    </div>
+  </template>
+  <script>
+    Polymer({
+      is: 'stats-panel',
+
+      properties: {
+        expenses: Array,
+        totalOwed: Number,
+        history: Array
+      },
+
+      observers: ['_calculateStats(expenses.*)'],
+
+      _logout: function() {
+        this.fire('logout');
+      },
+
+      _getHistoryLabel: function(item, index) {
+        var label = moment().year(item.year).month(item.month);
+        var format = (index === 0 || item.month === 11) ? 'YYYY MMM' : 'MMM';
+        return label.format(format);
+      },
+
+      _formatMoney: function(item) {
+        return item.total.toFixed(2);
+      },
+
+      _calculateStats: function() {
+        var expenses = this.expenses;
+
+        function findMonth(rawDate, history) {
+          var date = moment(rawDate);
+          var month;
+
+          history.forEach(function(m) {
+            if (m.month === date.month() && m.year === date.year()) {
+              month = m;
+            }
+          });
+
+          if (!month) {
+            month = {
+              month: date.month(),
+              year: date.year(),
+              total: 0
+            };
+            history.push(month);
+          }
+          return month;
+        }
+
+        var total = expenses.filter(function(expense) {
+              return expense.status !== 'REIMBURSED';
+            })
+            .map(function(expense) {
+              return expense.total;
+            })
+            .reduce(function(a, b) {
+              return a + b;
+            }, 0);
+
+        var history = [];
+        var oneYearAgo = moment().subtract(1, 'years');
+
+        expenses.filter(function(expense) {
+          return moment(expense.date).isAfter(oneYearAgo);
+        }).forEach(function(expense) {
+          findMonth(expense.date, history).total += expense.total;
+        });
+
+        this.totalOwed = total.toFixed(2);
+        this.history = history;
+      }
+    });
+  </script>
+</dom-module>
