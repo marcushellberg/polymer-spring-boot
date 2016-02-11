@@ -20,6 +20,8 @@ You can start the application locally by running:
  
 ```mvn clean package spring-boot:run```
 
+Open [http://localhost:5000](http://localhost:5000) in your browser.
+
 # Production
 
 For a production optimized version, run with the `production` profile. This will run vulcanize on your HTML imports to bundle them all into one file.
