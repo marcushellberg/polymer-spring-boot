@@ -35,7 +35,6 @@ public class ExpensesController {
 
     @RequestMapping(value = "/{id}", method = RequestMethod.PUT)
     ResponseEntity<Void> updateExpense(@PathVariable Long id, @RequestBody Expense newExpense) {
-
         Expense expense = expensesRepository.findOne(id);
 
         if (expense.getUser().equals(getCurrentUser())) {

@@ -20,7 +20,7 @@ You can start the application locally by running:
  
 ```mvn clean package spring-boot:run```
 
-Open [http://localhost:5000](http://localhost:5000) in your browser.
+Open [http://localhost:5000](http://localhost:5000) in your browser and log in with "user"/"user"
 
 # Production
 
