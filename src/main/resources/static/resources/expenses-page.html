@@ -32,10 +32,12 @@
       }
 
     </style>
+
     <token-ajax id="ajax" url="/api/expenses" last-response="{{expenses}}"
                 token="{{token}}"></token-ajax>
 
     <paper-drawer-panel right-drawer class="flex">
+
       <stats-panel expenses="[[expenses]]" drawer></stats-panel>
 
       <paper-header-panel main>
@@ -52,6 +54,7 @@
       </paper-header-panel>
 
     </paper-drawer-panel>
+    <expense-editor id="editor" token="{{token}}"></expense-editor>
 
     <paper-toast id="toast"></paper-toast>
   </template>
@@ -67,7 +70,12 @@
       },
       behaviors: [Polymer.NeonAnimatableBehavior],
       listeners: {
+        'edit-expense': '_editExpense',
         'expenses-updated': '_expensesUpdated'
+      },
+
+      _editExpense: function(evt) {
+        this.$.editor.open(evt.detail);
       },
 
       _expensesUpdated: function(evt) {

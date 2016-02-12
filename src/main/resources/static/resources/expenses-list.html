@@ -52,6 +52,7 @@
     <div class="filters">
       <paper-input label="Filter by merchant" value="{{merchant}}"></paper-input>
     </div>
+
     <vaadin-grid id="expenses" items="{{expenses}}" frozen-columns="1" on-selected-items-changed="_editExpense">
       <table>
         <colgroup>
@@ -63,8 +64,8 @@
         </colgroup>
       </table>
     </vaadin-grid>
+
     <paper-fab icon="add" on-tap="_addExpense" class="add-button"></paper-fab>
-    <expense-editor id="editor" token="{{token}}"></expense-editor>
 
   </template>
   <script>
@@ -72,10 +73,6 @@
       is: 'expenses-list',
       properties: {
         expenses: Array,
-        token: {
-          type: String,
-          notify: true
-        },
         merchant: {
           type: String,
           observer: '_filterChanged'
@@ -129,7 +126,7 @@
       },
 
       _addExpense: function() {
-        this.$.editor.open({});
+        this.fire('edit-expense', {});
       },
 
       _editExpense: function(){
@@ -138,7 +135,7 @@
         var selection = grid.selection.selected();
         if (selection.length === 1) {
           grid.getItem(selection[0], function(err, item) {
-            _this.$.editor.open(item);
+            _this.fire('edit-expense', item);
           });
         }
       }

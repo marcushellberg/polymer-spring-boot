@@ -21,12 +21,16 @@
         flex: 1;
       }
     </style>
-    <iron-localstorage name="token" value="{{token}}"></iron-localstorage>
+
     <neon-animated-pages selected="{{selected}}" entry-animation="fade-in-animation"
                          exit-animation="fade-out-animation">
+
       <login-page token="{{token}}"></login-page>
       <expenses-page token="{{token}}"></expenses-page>
+
     </neon-animated-pages>
+    <iron-localstorage name="token" value="{{token}}"></iron-localstorage>
+
   </template>
   <script>
     Polymer({
