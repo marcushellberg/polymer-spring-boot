@@ -2,32 +2,40 @@
 const SRC_DIR = 'src/main/resources/static/resources';
 const DEST_DIR = 'target/classes/static/resources';
 const gulp = require('gulp');
-const vulcanize = require('gulp-vulcanize');
-const autoprefixer = require('gulp-autoprefixer');
+const $ = require('gulp-load-plugins')();
+const postcss = require('gulp-html-postcss');
 
-
-gulp.task('vulcanize', function(){
+gulp.task('build', function() {
   return gulp
     .src(SRC_DIR + '/elements.html')
-    .pipe(vulcanize({
+    .pipe($.vulcanize({
       inlineScripts: true,
       inlineCss: true
     }))
+    .pipe($.crisper())
+    .pipe($.if('*.js', $.uglify({
+      preserveComments: 'some'
+    })))
+    .pipe($.if('*.html', $.htmlmin({
+      customAttrAssign: [/\$=/],
+      removeComments: true,
+      collapseWhitespace: true
+    })))
     .pipe(gulp.dest(DEST_DIR));
 });
 
-gulp.task('copy-resources', function(){
-  return gulp.src(SRC_DIR+'/bower_components/webcomponentsjs/**/*')
-    .pipe(gulp.dest(DEST_DIR+'/bower_components/webcomponentsjs'));
+gulp.task('copy-resources', function() {
+  return gulp.src(SRC_DIR + '/bower_components/webcomponentsjs/**/*')
+    .pipe(gulp.dest(DEST_DIR + '/bower_components/webcomponentsjs'));
 });
 
-gulp.task('autoprefix', function(){
+gulp.task('autoprefix', function() {
   return gulp.src(SRC_DIR + '/styles/**/*.css')
-    .pipe(autoprefixer({
+    .pipe($.autoprefixer({
       browsers: ['last 2 versions'],
       cascade: false
     }))
-    .pipe(gulp.dest(DEST_DIR+'/styles'));
+    .pipe(gulp.dest(DEST_DIR + '/styles'));
 });
 
-gulp.task('default', ['vulcanize', 'copy-resources', 'autoprefix']);
+gulp.task('default', ['build', 'copy-resources', 'autoprefix']);
