@@ -4,14 +4,63 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
   <title>Expense Manager</title>
-  <script src="resources/bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+
+  <link rel="stylesheet" href="resources/styles/styles.css" async>
 
   <!--Put any includes needed on index.html in elements.html
       as it will be vulcanized by the build process-->
-  <link rel="import" href="resources/elements.html">
-  <link rel="stylesheet" href="resources/styles/styles.css">
+  <link rel="import" id="bundle" href="resources/elements.html" async>
+
+  <!--Use native Shadow DOM where available-->
+  <script>
+    window.Polymer = window.Polymer || {};
+    window.Polymer.dom = 'shadow';
+  </script>
+  <style>
+    body.loading {
+      height: 100vh;
+      width: 100vw;
+      background: #37474F;
+    }
+
+    body.loading > * {
+      display: none;
+    }
+
+  </style>
 </head>
-<body unresolved fullbleed>
-  <expenses-application></expenses-application>
+<body class="loading" fullbleed>
+
+  <script>
+    function onImportLoaded() {
+      document.body.classList.remove('loading');
+      document.body.classList.add('ready');
+      var appElement = document.createElement('expenses-application');
+      document.body.appendChild(appElement);
+    }
+
+    function finishLazyLoading() {
+      var link = document.querySelector('#bundle');
+      if (link.import && link.import.readyState === 'complete') {
+        onImportLoaded();
+      } else {
+        link.addEventListener('load', onImportLoaded);
+      }
+    }
+
+    var webComponentsSupported = (
+    'registerElement' in document &&
+    'import' in document.createElement('link') &&
+    'content' in document.createElement('template'));
+    if (!webComponentsSupported) {
+      var script = document.createElement('script');
+      script.async = true;
+      script.src = 'resources/bower_components/webcomponentsjs/webcomponents-lite.min.js';
+      script.onload = finishLazyLoading;
+      document.head.appendChild(script);
+    } else {
+      finishLazyLoading();
+    }
+  </script>
 </body>
 </html>
