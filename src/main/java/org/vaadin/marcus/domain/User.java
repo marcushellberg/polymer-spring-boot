@@ -1,5 +1,7 @@
 package org.vaadin.marcus.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 
 @Entity
@@ -10,7 +12,9 @@ public class User {
 
     private String username;
 
-    private String password;
+    // Default to empty string for Auths created by JWT requests
+    @JsonIgnore
+    private String password = "";
 
     @Enumerated(EnumType.STRING)
     private Role role;
