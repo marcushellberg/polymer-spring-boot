@@ -21,7 +21,7 @@ public class TokenAuthService {
     private static final long VALIDITY_TIME_MS = 10 * 24 * 60 * 60 * 1000;
     private static final String AUTH_HEADER_NAME = "x-auth-token";
 
-    @Value("token.secret")
+    @Value("${token.secret}")
     private String secret;
 
 
