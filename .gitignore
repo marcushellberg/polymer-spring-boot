@@ -2,3 +2,4 @@
 *.iml
 target
 bower_components
+node_modules
