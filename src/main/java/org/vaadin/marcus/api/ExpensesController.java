@@ -16,6 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/expenses")
 public class ExpensesController {
+
     @Autowired
     ExpensesRepository expensesRepository;
 
