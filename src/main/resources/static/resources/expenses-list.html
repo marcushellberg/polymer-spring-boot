@@ -82,16 +82,6 @@
       ready: function() {
         var grid = this.$.expenses;
 
-        grid.columns[2].renderer = function(cell) {
-          cell.element.textContent = "$" + cell.data.toFixed(2);
-        };
-
-        grid.columns[3].renderer = function(cell) {
-          var status = cell.data.replace(/_/g, ' ');
-          status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
-          cell.element.textContent = status;
-        };
-
         grid.addEventListener('sort-order-changed', function() {
           var sortProperty = grid.columns[grid.sortOrder[0].column].name;
           var sortDirection = grid.sortOrder[0].direction;
@@ -110,6 +100,18 @@
             }
             return res;
           });
+        });
+
+        grid.then(function() {
+          grid.columns[2].renderer = function(cell) {
+            cell.element.textContent = "$" + cell.data.toFixed(2);
+          };
+
+          grid.columns[3].renderer = function(cell) {
+            var status = cell.data.replace(/_/g, ' ');
+            status = status.charAt(0).toUpperCase() + status.slice(1).toLowerCase();
+            cell.element.textContent = status;
+          };
         });
       },
 
